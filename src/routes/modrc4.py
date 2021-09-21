@@ -1,9 +1,9 @@
-from flask import Blueprint
+from flask import Blueprint, request
 
 modrc4 = Blueprint('modrc4', __name__, url_prefix='/modrc4')
 
 
-@modrc4.route('/encrypt', methods=['POST'])
+@modrc4.route('/encrypt/', methods=['POST'])
 def encrypt():
     pass
 
