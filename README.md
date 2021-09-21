@@ -1,6 +1,6 @@
 # steganosaur_back
 
-Backend-side of Steganosaur, web application to hide message. For the backend-side, click [here](https://github.com/izharul-haq/steganosaur_front).
+Backend-side of Steganosaur, web application to hide message. For the frontend-side, click [here](https://github.com/izharul-haq/steganosaur_front).
 
 ## Requirements
 
