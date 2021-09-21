@@ -1,6 +1,6 @@
-# stegosaur_back
+# steganosaur_back
 
-Backend-side of Stegosaur, web application to hide message.
+Backend-side of Steganosaur, web application to hide message.
 
 ## Requirements
 
