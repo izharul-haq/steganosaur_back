@@ -1,1 +1,1 @@
-from .modrc4 import modrc4_decrypt, modrc4_encrypt
+from .modrc4 import crypt as modrc4_crypt
