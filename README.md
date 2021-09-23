@@ -21,3 +21,7 @@ Install every requirements needed for this project using
         pyhton src/app.py
 
 ## How to Use
+
+1. Run API (follow [How to Run](#how-to-run)).
+
+2. Create request using [frontend-side](https://github.com/izharul-haq/steganosaur_front) of this web application or any kind of HTTP client ([Thunder Client](https://www.thunderclient.io/), etc.).
