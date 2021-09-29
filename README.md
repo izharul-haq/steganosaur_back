@@ -18,7 +18,7 @@ Install every requirements needed for this project using
 
 1. Run API with
 
-        pyhton src/app.py
+        python src/app.py
 
 ## How to Use
 
