@@ -1,3 +1,4 @@
+import random
 import numpy as np
 from PIL import Image
 
@@ -16,48 +17,67 @@ def read_cover_image(filename):
         data = np.array(img)    
     return data, width, height
 
-def encrypt_steg_image(cover, message, seq):
+def encrypt_steg_image(cover, message, seq = True, key = "STEGA"):
     input_length = len(message)
     if seq:
-        # change first 10th lsb bit to 11 if sequential, else 11
-        for i in range(10):
-            cover[i] = cover[i] | (1 << (2 - 1))
-            cover[i] = cover[i] | (1 << (1 - 1))
+        # Add flag for seq with 7 at end, 25x
+        for i in range(25):
+            x = cover[i] // 10 * 10 + 7
+            cover[i] = x - 10 if x > 255 else x
         
         # steg message
-        for i in range(10,input_length+10):
-            cover[i] = (cover[i] & ~1) | message[i-10]
+        for i in range(25,input_length+25):
+            cover[i] = (cover[i] & ~1) | message[i-25]
 
         # Add flag for end message with 9 at end, 25x
         for j in range(25):
-            i = input_length + 10 + j
+            i = input_length + 25 + j
             x = cover[i] // 10 * 10 + 9
 
             cover[i] = x - 10 if x > 255 else x
 
     else:
-        # change first 10th lsb bit to 11 if sequential, else 00
-        for i in range(10):
-            cover[i] = cover[i] & ~(1 << (2 - 1))
-            cover[i] = cover[i] & ~(1 << (1 - 1))
+        # Add flag for random with 8 at begin, 25x
+        for i in range(25):
+            x = cover[i] // 10 * 10 + 8
+            cover[i] = x - 10 if x > 255 else x
 
-        # do random encrypt thing
+        # Add input length in next 10 bit, so max input length 9.999.999.999
+        num_len = [int(x) for x in str(input_length)]
+        z = 10 - len(num_len)
+        for j in range(10):
+            i = 25 + j
+            if(j < z):
+                x = cover[i] // 10 * 10 + 0
+                cover[i] = x - 10 if x > 255 else x
+            else:
+                x = cover[i] // 10 * 10 + num_len[j - z]
+                cover[i] = x - 10 if x > 255 else x
 
-
+        # generate random post
+        count = 0
+        for i in key:
+            count += ord(i)
+        random.seed(count)
+        pos = random.sample(range(35, len(cover)), input_length)
+        idx = 0
+        for i in pos:
+            cover[i] = message[idx]
+            idx += 1
     return cover
 
-def decrypt_stegano_image(image, key):
+def decrypt_stegano_image(image, key = "STEGA"):
     identifier = []
     result = []
     # identify stegano using seq / random
-    for i in range(10):
-        identifier.append(image[i] % 3)
+    for i in range(25):
+        identifier.append(image[i] % 10)
 
-    if(identifier.count(0) == len(identifier)):
+    if(identifier.count(7) == len(identifier)):
         # stegano using sequential
         count_flag = 0
-        i = 10
-        length_data = len(image) - 10
+        i = 25
+        length_data = len(image) - 25
         while count_flag < 25 and i < length_data:
             result.append(image[i] % 2)
             if  image[i] % 10 == 9:
@@ -67,10 +87,18 @@ def decrypt_stegano_image(image, key):
             i += 1
         # delete flag from message
         result = result[:-25]
-    elif(identifier.count(1) == len(identifier)):
+    elif(identifier.count(8) == len(identifier)):
         # stegano using random
-        print("DOR")
+        input_length = int(''.join([str(x % 10) for x in image[25:35]]))
 
+        count = 0
+        for i in key:
+            count += ord(i)
+        random.seed(count)
+        pos = random.sample(range(35, len(image)), input_length)
+        idx = 0
+        for i in pos:
+            result.append(image[i] % 2)
     return result
 
 # flatten image pixel
@@ -81,16 +109,11 @@ def flatten_image(data, width, height):
 def construct_image(data, width, height):
     return np.reshape(data, (height, width, 3))
 
+# test
 data, width, height = read_cover_image('./test/sus.png')
 data = flatten_image(data, width, height)
-encrypt = encrypt_steg_image(data, b_message, True)
-decrypt = decrypt_stegano_image(encrypt, 'key')
+encrypt = encrypt_steg_image(data, b_message, False)
+decrypt = decrypt_stegano_image(encrypt)
 
 print(b_message)
 print(decrypt)
-# # Reshape back to an image pixel array
-# data = np.reshape(data, (height, width, 3))
-
-# new_img = Image.fromarray(data)
-# new_img.save("cover-secret.png")
-# new_img.show()
