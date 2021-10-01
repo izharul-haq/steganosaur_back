@@ -1,2 +1,2 @@
 from .modrc4 import modrc4
-from .stegano import stegano
+from .stegano_audio import stegano_audio

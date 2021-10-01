@@ -1,14 +1,15 @@
 import logging
 from flask import Flask
 from flask_cors import CORS
-from routes import modrc4, stegano
+from routes import modrc4, stegano_audio
 
 logging.basicConfig(filename='app.log', filemode='w',
                     format='%(asctime)s %(levelname)s %(message)s')
 
 app = Flask(__name__)
 app.register_blueprint(modrc4)
-app.register_blueprint(stegano)
+app.register_blueprint(stegano_audio)
+# app.register_blueprint(stegano)
 CORS(app)
 
 

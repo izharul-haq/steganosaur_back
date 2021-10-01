@@ -10,11 +10,27 @@ def read_audio(filename:str):
 def create_audio(filename, params, frames):
     # Create audio file for insertion message
     with wave.open(filename, 'wb') as fd:
-        fd.setparams(params)
+        # fd.setparams(params)
         fd.writeframes(frames)
 
 
-def encrypt_audio(binary_message, filename, seq=True, key="STEGA"):
+def encrypt_audio(message, filename, seq=True, key="STEGA"):
+    # bytes to binary message
+    binary_message = []
+    for i in range(len(message)):
+        binary_message.append(bin(message[i]))
+
+    for i in range(len(binary_message)):
+        binary_message[i] = binary_message[i][2:]
+        
+    for i in range(len(binary_message)):
+        while len(binary_message[i]) != 8:
+            binary_message[i] = "0"+binary_message[i]
+
+    b_message = ""
+    for i in range(len(binary_message)):
+        b_message += binary_message[i]
+
     # read audio
     params, audio = read_audio(filename)
 
@@ -28,11 +44,11 @@ def encrypt_audio(binary_message, filename, seq=True, key="STEGA"):
             if audio[i] % 2 == 1:
                 audio[i] -= 1
         # Inserting message
-        for j in range (len(binary_message)):
+        for j in range (len(b_message)):
             if audio[i+j+1] % 2 == 0:
-                audio[i+j+1] += int(binary_message[j])
+                audio[i+j+1] += int(b_message[j])
             else:
-                if int(binary_message[j]) == 0:
+                if int(b_message[j]) == 0:
                     audio[i+j+1] -= 1
 
             # Adding flag 1111111...[25] in binary as end of message sign          
@@ -45,31 +61,31 @@ def encrypt_audio(binary_message, filename, seq=True, key="STEGA"):
             if audio[i] % 2 == 0:
                 audio[i] += 1
         
-        length_message = str(len(binary_message))
+        length_message = str(len(b_message))
         while (len(length_message)) != 10:
             length_message = "0"+length_message
 
         for i in range(25,35):
-            # print(audio[i])
             audio[i] = int(length_message[i-25])
-            # print(audio[i])
         count = 0
         # generate pseudo-random posision
         for i in key:
             count += ord(i)
         random.seed(count)
-        pos = random.sample(range(35, len(audio)), len(binary_message))
+        pos = random.sample(range(35, len(audio)), len(b_message))
         idx = 0
         for i in pos:
             if audio[i] % 2 == 0:
-                audio[i] += int(binary_message[idx])
+                audio[i] += int(b_message[idx])
             else:
                 if int(binary_message[idx]) == 0:
                     audio[i] -= 1
             idx += 1
 
     #stegano audio
-    create_audio('output.wav', params, audio)
+    return params, audio
+    # create_audio('output.wav', params, audio)
+
 
 def decrypt_audio(filename, key="STEGA"):
     # Read stegano audio
@@ -107,7 +123,7 @@ def decrypt_audio(filename, key="STEGA"):
             else:
                 result += "1"
         
-        return result[:-25]
+        result = result[:-25]
     elif c_rand == 25:
 
         # get length_message
@@ -132,4 +148,24 @@ def decrypt_audio(filename, key="STEGA"):
                 result += "0"
             else:
                 result += "1"
-        return result
+    
+    # string to bin
+    a = []
+    for i in range(0, len(result), 8):
+        a.append(int(result[i:i+8], 2).to_bytes(1, 'big'))
+
+    result = b""
+    for i in range(len(a)):
+        result += a[i]
+
+    return result
+
+
+# message = b'\x00\x00\x66\x20'
+# encrypt_audio(message, 'test/opera.wav')
+# print(decrypt_audio('output.wav'))
+
+# with wave.open('output.wav') as fd:
+#     params = fd.getparams()
+#     frames = fd.readframes(-1)
+
