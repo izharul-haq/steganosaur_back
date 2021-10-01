@@ -3,7 +3,7 @@ from flask import Blueprint, request, send_file, jsonify
 from services import encrypt_audio, decrypt_audio, modrc4_crypt
 import wave
 
-stegano_audio = Blueprint('stegano_audio', __name__, url_prefix='/stegano_audio')
+stegano_audio = Blueprint('stegano_audio', __name__, url_prefix='/stegano')
 
 
 @stegano_audio.route('/hide/audio', methods=['POST'])
