@@ -1,4 +1,4 @@
-def init_stream(s: list[int], key: bytes) -> list[int]:
+def init_stream(s, key: bytes):
     '''Initialize permutation in stream'''
 
     res = s.copy()

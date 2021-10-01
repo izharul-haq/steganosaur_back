@@ -4,7 +4,7 @@ S1 = [i for i in range(256)]
 S2 = [i for i in range(255, -1, -1)]
 
 
-def crypt(_input: list[int], key: bytes) -> bytes:
+def crypt(_input, key: bytes) -> bytes:
     '''Encrypt or decrypt given input with given key
     using modified RC4 alogrithm.'''
 
