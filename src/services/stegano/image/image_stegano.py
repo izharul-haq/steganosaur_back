@@ -2,14 +2,6 @@ import random
 import numpy as np
 from PIL import Image
 
-message = "Hello World!"
-
-# Encode the message in a serie of 8-bit values
-b_message = ''.join(["{:08b}".format(ord(x)) for x in message ])
-b_message = [int(x) for x in b_message]
-
-b_message_lenght = len(b_message)
-
 # Get the image pixel arrays 
 def read_cover_image(filename):
     with Image.open(filename) as img:
@@ -100,14 +92,14 @@ def flatten_image(data, width, height):
     return np.reshape(data, width*height*3)
 
 # construct image pixel with size width*height
-def construct_image(data, width, height):
+def construct_image(data, width, height, filetype):
     return np.reshape(data, (height, width, 3))
 
 # test
-data, width, height = read_cover_image('./test/sus.png')
-data = flatten_image(data, width, height)
-encrypt = encrypt_steg_image(data, b_message, False)
-decrypt = decrypt_stegano_image(encrypt)
+# data, width, height = read_cover_image('test/sus.png')
+# data = flatten_image(data, width, height)
+# encrypt = encrypt_steg_image(data, b_message, False)
+# decrypt = decrypt_stegano_image(encrypt)
 
-print(b_message)
-print(decrypt)
+# print(b_message)
+# print(decrypt)

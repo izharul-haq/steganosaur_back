@@ -8,7 +8,7 @@ modrc4 = Blueprint('modrc4', __name__, url_prefix='/modrc4')
 
 @modrc4.route('/encrypt/<string:input_type>', methods=['POST'])
 def encrypt(input_type: str):
-    try:
+    try:   
         if input_type == 'file':
             buffer = request.files['input']
             key = request.form.get('key')
